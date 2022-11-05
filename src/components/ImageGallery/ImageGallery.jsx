@@ -13,7 +13,6 @@ const ImageGallery = ({ pictureData, onClick }) => (
 export default ImageGallery;
 
 ImageGallery.propTypes = {
-  id: PropTypes.string.isRequired,
   pictureData: PropTypes.array.isRequired,
   onClick: PropTypes.func.isRequired,
 };

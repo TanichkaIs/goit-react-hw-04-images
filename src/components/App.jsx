@@ -1,4 +1,4 @@
-import React from 'react';
+import {useState, useEffect } from 'react';
 import ImageGallery from './ImageGallery/ImageGallery';
 import Searchbar from './Searchbar/Searchbar';
 import Modal from './Modal/Modal';
@@ -8,102 +8,78 @@ import toast from 'react-hot-toast';
 import api from 'services/api';
 import { mapper } from 'helpers/mapper';
 
-export default class App extends React.Component {
-  state = {
-    pictureName: '',
-    pictureData: '',
-    pictureModal: '',
-    status: 'idle',
-    page: 1,
-  };
-
-  componentDidUpdate(prevState, prevProps) {
-    const prevSearch = prevProps.pictureName;
-    const nextSearch = this.state.pictureName;
-    const prevPage = prevProps.page;
-    const nextPage = this.state.page;
-
-    if (prevSearch !== nextSearch) {
-      this.loadPicture();
-      this.resetData();
+export default function App() {
+  const [{ pictureName }, setPictureName] = useState('');
+  const [pictureData, setPictureData] = useState('');
+  const [pictureModal, setPictureModal] = useState('');
+  const [status, setStatus] = useState('');
+  const [page, setPage] = useState('');
+  // state = {
+  //   pictureName: '',
+  //   pictureData: '',
+  //   pictureModal: '',
+  //   status: 'idle',
+  //   page: 1,
+  // };
+  useEffect(() => {
+    if (!pictureName) {
+      return;
     }
-    if (nextPage > prevPage) {
-      this.loadPicture();
-    }
-  }
-
-  loadPicture = () => {
-    const { pictureName, page } = this.state;
-    this.setState({ status: 'pending' });
+  
+    setStatus('pending');
     api
       .fetchPicture(pictureName, page)
       .then(res => {
-        this.setState(prevState => ({
-          pictureData: [...prevState.pictureData, ...mapper(res.data.hits)],
-          status: 'resolved',
-        }));
+        setPictureData(state => [...state, ...mapper(res.data.hits)]);
+        setStatus('resolved');
         if (res.data.hits.length === 0) {
           toast.error('There is no picture for that name');
         }
-      })
-      .catch(error => console.log(error));
+      })      
+      .catch(error => console.log(error));      
+  }, [page, pictureName]);
+  
+
+
+  const handleFormSubmit = pictureName => {
+    // resetPage();
+    setPage(1);
+    setPictureName({ pictureName });
+    setPictureData('');
   };
 
-  handleFormSubmit = pictureName => {
-    this.resetPage();
-
-    this.setState({ pictureName });
+  const loadMore = () => {
+    setPage(prevState => prevState + 1);
+    console.log(page)
   };
 
-  loadMore = () => {
-    this.setState(prevState => ({
-      page: prevState.page + 1,
-    }));
+  const pictureModalClick = picture => {
+    setPictureModal(picture);
   };
 
-  pictureModalClick = picture => {
-    this.setState({
-      pictureModal: picture,
-    });
+  const closeModal = () => {
+    setPictureModal('');
   };
 
-  closeModal = () => {
-    this.setState({
-      pictureModal: '',
-    });
-  };
-
-  resetPage() {
-    this.setState({
-      page: 1,
-    });
-  }
-
-  resetData() {
-    this.setState({
-      pictureData: '',
-    });
-  }
-
-  render() {
-    const { status, pictureData, pictureModal } = this.state;
+  
+    // const { status, pictureData, pictureModal } = this.state;
     return (
       <div>
-        <Searchbar onSubmit={this.handleFormSubmit} />        
+        <Searchbar onSubmit={handleFormSubmit} />        
         {pictureData.length > 0 && (
           <ImageGallery
             pictureData={pictureData}
-            onClick={this.pictureModalClick}
+            onClick={pictureModalClick}
           ></ImageGallery>
         )}
         {status === 'pending' && <LoaderSpiner />}
-        {pictureData.length > 0 && <LoadMore onClick={this.loadMore} />}
+        {pictureData.length > 0 && <LoadMore onClick={loadMore} />}
         {pictureModal.length > 0 && (
-          <Modal onClose={this.closeModal}>
+          <Modal onClose={closeModal}>
             <img src={pictureModal} alt="" />
           </Modal>
         )}
       </div>
     );
-  }
+  
 }

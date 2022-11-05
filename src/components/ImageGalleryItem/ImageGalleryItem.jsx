@@ -1,10 +1,10 @@
 import PropTypes from 'prop-types';
 import { ItemImageGallery, Image } from './ImageGalleryItem.styled'
 
-const ImageGalleryItem = ({ id, largeImageURL, webformatURL, onClick }) => {
+const ImageGalleryItem = ({ largeImageURL, webformatURL, onClick }) => {
   return (
     <ItemImageGallery
-      key={id}
+      
       onClick={() => onClick(largeImageURL)}
     >
       <Image

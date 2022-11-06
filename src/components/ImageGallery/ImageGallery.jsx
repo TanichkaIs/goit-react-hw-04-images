@@ -17,4 +17,3 @@ ImageGallery.propTypes = {
   pictureData: PropTypes.array.isRequired,
   onClick: PropTypes.func.isRequired,
 };
-//

@@ -74,7 +74,7 @@ export default function App() {
         )}
         {status === 'pending' && <LoaderSpiner />}
         {pictureData.length > 7 && <LoadMore onClick={loadMore} />}
-        {pictureModal.length > 7 && (
+        {pictureModal.length > 0 && (
           <Modal onClose={closeModal}>
             <img src={pictureModal} alt="" />
           </Modal>
